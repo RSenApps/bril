@@ -33,6 +33,10 @@ def make_blocks(instrs: list, fn_name: str) -> OrderedDict:
             current_label = None
         else:
             current_block.append(instr)
+
+    # Get last block
+    if current_block:
+        blocks[name_block(current_label, len(blocks), fn_name)] = current_block
     return blocks
 
 def make_cfg(json_input: str) -> dict:
@@ -51,9 +55,9 @@ def make_cfg(json_input: str) -> dict:
                     succs.extend(instr['labels'])
                 elif instr['op'] == 'call':
                     func = instr['funcs'][0]
-                    first_block = list(f2blocks[func].items())[0]
-                    first_block_label = first_block[0]
-                    succs.append(first_block_label)
+                    first_label_block_pair = list(f2blocks[func].items())[0]
+                    first_block_label_in_func = first_label_block_pair[0]
+                    succs.append(first_block_label_in_func)
             if not succs and i + 1 < len(blocks):
                 succs.append(list(blocks.keys())[i + 1])
             cfg[label] = succs
