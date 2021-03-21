@@ -16,12 +16,14 @@ def name_block(label, index, fn_name):
     else:
         return fn_name + str(index)
 
-def make_blocks(instrs: list, fn_name: str) -> OrderedDict:
+def make_blocks(instrs: list, fn_name: str, keep_labels = False) -> OrderedDict:
     current_block = []
     blocks = OrderedDict()
     current_label = None
     for instr in instrs:
         if 'label' in instr:
+            if keep_labels:
+                current_block.append(instr)
             if current_block:
                 blocks[name_block(current_label, len(blocks), fn_name)] = current_block
             current_block = []

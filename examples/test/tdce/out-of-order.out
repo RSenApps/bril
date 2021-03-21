@@ -1,0 +1,10 @@
+@main {
+  jmp .end;
+.start:
+  print a;
+  jmp .finish;
+.end:
+  a: int = const 10;
+  jmp .start;
+.finish:
+}
