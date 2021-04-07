@@ -54,10 +54,10 @@ def mk_fresh_name(name, used_names):
     if name not in used_names: return name
 
     i = 0
-    new_name = name + '.' + i
+    new_name = name + '.' + str(i)
     while new_name in used_names:
         i += 1
-        new_name = name + '.' + i
+        new_name = name + '.' + str(i)
     return new_name
         
 
@@ -71,7 +71,7 @@ def lvn_block(block_instrs):
             # skip labels
             new_instrs.append(instr)
             continue
-        new_instr = instr
+        new_instr = dict(instr)
 
         # construct value
         value = (instr["op"], instr.get('value', None)) + tuple(table.varInStateToRow(arg) for arg in instr.get("args", []))
