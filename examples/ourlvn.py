@@ -4,7 +4,6 @@ from make_cfg import make_blocks
 from collections import namedtuple
 
 LVNTableRow = namedtuple('LVNTableRow', ['index', 'value', 'canonical'])
-vars_in_block = namedtuple('vars_in_block', ['reassinged_vars', 'single_assign_vars'])
 
 class LVNTable:
 
@@ -48,7 +47,18 @@ def find_overwritten_instr_idxs(block_instrs):
                 overwritten_idxs.add(idx)
             seen.add(instr['dest'])
     return overwritten_idxs
-    
+
+def find_read_before_write(block_instrs):
+    written_args = set()
+    read_before_write = set()
+    for instr in block_instrs:
+        for arg in instr.get("args", []):
+            if arg not in written_args:
+                read_before_write.add(arg)
+
+        if "dest" in instr:
+            written_args.add(instr["dest"])
+    return read_before_write
 
 def mk_fresh_name(name, used_names):
     if name not in used_names: return name
@@ -66,6 +76,15 @@ def lvn_block(block_instrs):
     new_instrs = []
     overwritten_instr_idxs = find_overwritten_instr_idxs(block_instrs)
     used_names = {instr['dest'] for instr in block_instrs if 'dest' in instr}
+
+    read_first = find_read_before_write(block_instrs)
+
+    # This is ok since reassignments will have unique values.
+    for arg in read_first:
+        value = arg
+        row = table.appendRow(value, arg)
+        table.setStateOfVarToIndex(arg, row.index)
+
     for instr_idx, instr in enumerate(block_instrs):
         if 'op' not in instr:
             # skip labels

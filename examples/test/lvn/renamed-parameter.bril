@@ -1,0 +1,12 @@
+# ARGS: -f
+
+@main() {
+  z: int = const 5;
+  jmp .label1;
+.label1:
+  x: int = add z z;
+  c: int = const 2;
+  z: int = add z c;
+  y: int = add z z;
+  print y;
+}
